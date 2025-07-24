@@ -75,8 +75,8 @@ public:
         consensus.CSVHeight = 419328; // 000000000000000004a1b34462cb8aeebd5799177f7a29cf28f2d1961716b5b5
         consensus.SegwitHeight = 481824; // 0000000000000000001c8018d9cb3b742ef25114f27563e3fc4a1902167f9893
         consensus.MinBIP9WarningHeight = 483840; // segwit activation height + miner confirmation window
-        consensus.powLimit = uint256S("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
-        consensus.nPowTargetTimespan = 14 * 24 * 60 * 60; // two weeks
+        consensus.powLimit = uint256S("0000ffff00000000000000000000000000000000000000000000000000000000");
+	consensus.nPowTargetTimespan = 14 * 24 * 60 * 60; // two weeks
         consensus.nPowTargetSpacing = 10 * 60;
         consensus.fPowAllowMinDifficultyBlocks = false;
         consensus.fPowNoRetargeting = false;
@@ -101,19 +101,33 @@ public:
          * The characters are rarely used upper ASCII, not valid as UTF-8, and produce
          * a large 32-bit integer with any alignment.
          */
-        pchMessageStart[0] = 0xf9;
-        pchMessageStart[1] = 0xbe;
-        pchMessageStart[2] = 0xb4;
-        pchMessageStart[3] = 0xd9;
-        nDefaultPort = 8333;
-        nPruneAfterHeight = 100000;
-        m_assumed_blockchain_size = 496;
-        m_assumed_chain_state_size = 6;
+	const char* pszTimestamp = "The Times 21/Jul/2025 BitSteal Launches for the Brave";
+	const CScript genesisOutputScript = CScript() << ParseHex("04678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5f") << OP_CHECKSIG;
+	
+	genesis = CreateGenesisBlock(
+	    "BitSteal Genesis - 자유를 위한 화폐",
+	    genesisOutputScript,
+	    1753150989,      // Time
+	    178391,          // Nonce
+	    0x1f00ffff,      // Bits (낮은 난이도)
+	    1,               // Version
+	    50 * COIN        // Reward
+	);
 
-        genesis = CreateGenesisBlock(1231006505, 2083236893, 0x1d00ffff, 1, 50 * COIN);
-        consensus.hashGenesisBlock = genesis.GetHash();
-        assert(consensus.hashGenesisBlock == uint256S("0x000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"));
-        assert(genesis.hashMerkleRoot == uint256S("0x4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b"));
+	consensus.hashGenesisBlock = genesis.GetHash();
+
+	assert(consensus.hashGenesisBlock ==
+	    uint256S("0x00007d7ec8a58ec236b39852d8e744233a297dfde7c8b1e31a3d74d74dfe2ed9"));
+
+	assert(genesis.hashMerkleRoot ==
+	    uint256S("0xc58250dd67353779e63f8071309ba61f3e0bcb875471630a481915b778430309"));
+
+
+	pchMessageStart[0] = 0xe2;
+	pchMessageStart[1] = 0xc3;
+	pchMessageStart[2] = 0xa9;
+	pchMessageStart[3] = 0xfc;
+	nDefaultPort = 15778;
 
         // Note that of those which support the service bits prefix, most only support a subset of
         // possible options.
@@ -195,8 +209,8 @@ public:
         consensus.CSVHeight = 770112; // 00000000025e930139bac5c6c31a403776da130831ab85be56578f3fa75369bb
         consensus.SegwitHeight = 834624; // 00000000002b980fcd729daaa248fd9316a5200e9b367f4ff2c42453e84201ca
         consensus.MinBIP9WarningHeight = 836640; // segwit activation height + miner confirmation window
-        consensus.powLimit = uint256S("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
-        consensus.nPowTargetTimespan = 14 * 24 * 60 * 60; // two weeks
+        consensus.powLimit = uint256S("0000ffff00000000000000000000000000000000000000000000000000000000");
+	consensus.nPowTargetTimespan = 14 * 24 * 60 * 60; // two weeks
         consensus.nPowTargetSpacing = 10 * 60;
         consensus.fPowAllowMinDifficultyBlocks = true;
         consensus.fPowNoRetargeting = false;
@@ -339,8 +353,8 @@ public:
         consensus.nRuleChangeActivationThreshold = 1815; // 90% of 2016
         consensus.nMinerConfirmationWindow = 2016; // nPowTargetTimespan / nPowTargetSpacing
         consensus.MinBIP9WarningHeight = 0;
-        consensus.powLimit = uint256S("00000377ae000000000000000000000000000000000000000000000000000000");
-        consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].bit = 28;
+        consensus.powLimit = uint256S("0000ffff00000000000000000000000000000000000000000000000000000000");
+	consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].bit = 28;
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nStartTime = Consensus::BIP9Deployment::NEVER_ACTIVE;
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].min_activation_height = 0; // No activation delay
@@ -400,8 +414,8 @@ public:
         consensus.CSVHeight = 1;    // Always active unless overridden
         consensus.SegwitHeight = 0; // Always active unless overridden
         consensus.MinBIP9WarningHeight = 0;
-        consensus.powLimit = uint256S("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
-        consensus.nPowTargetTimespan = 14 * 24 * 60 * 60; // two weeks
+        consensus.powLimit = uint256S("0000ffff00000000000000000000000000000000000000000000000000000000");
+	consensus.nPowTargetTimespan = 14 * 24 * 60 * 60; // two weeks
         consensus.nPowTargetSpacing = 10 * 60;
         consensus.fPowAllowMinDifficultyBlocks = true;
         consensus.fPowNoRetargeting = true;
@@ -582,3 +596,5 @@ void SelectParams(const std::string& network)
     SelectBaseParams(network);
     globalChainParams = CreateChainParams(gArgs, network);
 }
+
+
