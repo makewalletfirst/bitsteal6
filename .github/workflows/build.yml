@@ -1,0 +1,58 @@
+name: Build BitSteal
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Install dependencies
+      run: |
+        sudo apt update
+        sudo apt install -y \
+          autoconf libtool pkg-config build-essential \
+          libevent-dev libboost-dev libboost-system-dev \
+          libboost-filesystem-dev libboost-test-dev libboost-thread-dev \
+          libminiupnpc-dev libzmq3-dev libqrencode-dev \
+          libsqlite3-dev bsdmainutils curl git python3 libssl-dev
+
+    - name: Build and install Berkeley DB 4.8 (patched for GCC)
+      run: |
+        cd depends
+        tar -xzvf db-4.8.30.NC.tar.gz
+        cd db-4.8.30.NC
+
+        # ✅ GCC 11+ 대응: atomic.h 내 중복 심볼 sed로 처리
+        sed -i 's/__atomic_compare_exchange(/__db_atomic_compare_exchange(/g' dbinc/atomic.h
+
+        cd build_unix
+        ../dist/configure --enable-cxx --disable-shared --with-pic --prefix=/tmp/db4
+        make -j$(nproc)
+        make install
+
+    - name: Configure BitSteal
+      run: |
+        # ✅ 누락 Makefile 경로 대응
+        mkdir -p src/qt/test
+        mkdir -p src/test
+        touch src/qt/Makefile src/qt/test/Makefile src/test/Makefile
+
+        ./autogen.sh
+        ./configure --disable-tests --without-gui --without-bench \
+          BDB_LIBS="-L/tmp/db4/lib -ldb_cxx-4.8" \
+          BDB_CFLAGS="-I/tmp/db4/include" \
+          CXXFLAGS="-Wno-unused-result"
+
+    - name: Build BitSteal
+      run: make -j$(nproc)
+
