@@ -105,13 +105,13 @@ public:
 	const CScript genesisOutputScript = CScript() << ParseHex("04678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5f") << OP_CHECKSIG;
 	
 	pchMessageStart[0] = 0xe2;
-        pchMessageStart[1] = 0xc3;
-        pchMessageStart[2] = 0xa9;
-        pchMessageStart[3] = 0xfc;
-        nDefaultPort = 8333;
+	pchMessageStart[1] = 0xc3;
+	pchMessageStart[2] = 0xa9;
+	pchMessageStart[3] = 0xfc;
+	nDefaultPort = 8333;
 	nPruneAfterHeight = 100000;
-        m_assumed_blockchain_size = 496;
-        m_assumed_chain_state_size = 6;
+	m_assumed_blockchain_size = 496;
+	m_assumed_chain_state_size = 6;
 	
 	
 	genesis = CreateGenesisBlock(
