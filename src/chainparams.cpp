@@ -104,6 +104,16 @@ public:
 	const char* pszTimestamp = "The Times 21/Jul/2025 BitSteal Launches for the Brave";
 	const CScript genesisOutputScript = CScript() << ParseHex("04678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5f") << OP_CHECKSIG;
 	
+	pchMessageStart[0] = 0xe2;
+        pchMessageStart[1] = 0xc3;
+        pchMessageStart[2] = 0xa9;
+        pchMessageStart[3] = 0xfc;
+        nDefaultPort = 8333;
+	nPruneAfterHeight = 100000;
+        m_assumed_blockchain_size = 496;
+        m_assumed_chain_state_size = 6;
+	
+	
 	genesis = CreateGenesisBlock(
 	    "BitSteal Genesis - 자유를 위한 화폐",
 	    genesisOutputScript,
@@ -121,13 +131,6 @@ public:
 
 	assert(genesis.hashMerkleRoot ==
 	    uint256S("0xc58250dd67353779e63f8071309ba61f3e0bcb875471630a481915b778430309"));
-
-
-	pchMessageStart[0] = 0xe2;
-	pchMessageStart[1] = 0xc3;
-	pchMessageStart[2] = 0xa9;
-	pchMessageStart[3] = 0xfc;
-	nDefaultPort = 15778;
 
         // Note that of those which support the service bits prefix, most only support a subset of
         // possible options.
