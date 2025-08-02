@@ -149,6 +149,10 @@ std::unique_ptr<const CChainParams> CreateChainParams(const ArgsManager& args, c
 {
     if (chain == CBaseChainParams::MAIN) {
         return std::unique_ptr<CChainParams>(new CMainParams());
+    } else if (chain == CBaseChainParams::TESTNET || chain == CBaseChainParams::SIGNET || chain == CBaseChainParams::REGTEST) {
+        // 테스트넷/시그넷/레그테스트 요청시 메인넷으로 리다이렉트
+        LogPrintf("Warning: %s network not supported, using mainnet instead\n", chain);
+        return std::unique_ptr<CChainParams>(new CMainParams());
     }
     throw std::runtime_error(strprintf("%s: Unknown chain %s.", __func__, chain));
 }
