@@ -96,8 +96,8 @@ public:
         consensus.hashGenesisBlock = genesis.GetHash();
 
         // 제네시스 블록 해시 검증 (실제 마이닝 후 업데이트 필요)
-        // assert(consensus.hashGenesisBlock == uint256S("0x00007d7ec8a58ec236b39852d8e744233a297dfde7c8b1e31a3d74d74dfe2ed9"));
-        // assert(genesis.hashMerkleRoot == uint256S("0xc58250dd67353779e63f8071309ba61f3e0bcb875471630a481915b778430309"));
+        assert(consensus.hashGenesisBlock == uint256S("0x00007d7ec8a58ec236b39852d8e744233a297dfde7c8b1e31a3d74d74dfe2ed9"));
+        assert(genesis.hashMerkleRoot == uint256S("0xc58250dd67353779e63f8071309ba61f3e0bcb875471630a481915b778430309"));
 
         // BitSteal 주소 프리픽스 (Bitcoin과 구별)
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,25);  // 'B'로 시작
