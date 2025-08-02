@@ -57,6 +57,8 @@ static CBlock CreateGenesisBlock(uint32_t nTime, uint32_t nNonce, uint32_t nBits
 /**
  * Main network on which people trade goods and services.
  */
+// CMainParams 클래스의 수정해야 할 부분들
+
 class CMainParams : public CChainParams {
 public:
     CMainParams() {
@@ -64,135 +66,104 @@ public:
         consensus.signet_blocks = false;
         consensus.signet_challenge.clear();
         consensus.nSubsidyHalvingInterval = 210000;
-        consensus.script_flag_exceptions.emplace( // BIP16 exception
-            uint256S("0x00000000000002dc756eebf4f49723ed8d30cc28a5f108eb94b1ba88ac4f9c22"), SCRIPT_VERIFY_NONE);
-        consensus.script_flag_exceptions.emplace( // Taproot exception
-            uint256S("0x0000000000000000000f14c35b2d841e986ab5441de8c585d5ffe55ea1e395ad"), SCRIPT_VERIFY_P2SH | SCRIPT_VERIFY_WITNESS);
-        consensus.BIP34Height = 227931;
-        consensus.BIP34Hash = uint256S("0x000000000000024b89b42a942fe0d9fea3bb44ab7bd1b19115dd6a759c0808b8");
-        consensus.BIP65Height = 388381; // 000000000000000004c2b624ed5d7756c508d90fd0da2c7c679febfa6c4735f0
-        consensus.BIP66Height = 363725; // 00000000000000000379eaa19dce8c9b722d46ae6a57c2f1a988119488b50931
-        consensus.CSVHeight = 419328; // 000000000000000004a1b34462cb8aeebd5799177f7a29cf28f2d1961716b5b5
-        consensus.SegwitHeight = 481824; // 0000000000000000001c8018d9cb3b742ef25114f27563e3fc4a1902167f9893
-        consensus.MinBIP9WarningHeight = 483840; // segwit activation height + miner confirmation window
+        
+        // 스크립트 예외사항들을 제거하거나 새로운 체인에 맞게 수정
+        // consensus.script_flag_exceptions.emplace(...); // 제거
+        
+        consensus.BIP34Height = 1;  // 처음부터 활성화
+        consensus.BIP34Hash = uint256{};
+        consensus.BIP65Height = 1;
+        consensus.BIP66Height = 1;
+        consensus.CSVHeight = 1;
+        consensus.SegwitHeight = 1;
+        consensus.MinBIP9WarningHeight = 1;
+        
         consensus.powLimit = uint256S("0000ffff00000000000000000000000000000000000000000000000000000000");
-	consensus.nPowTargetTimespan = 14 * 24 * 60 * 60; // two weeks
-        consensus.nPowTargetSpacing = 10 * 60;
+        consensus.nPowTargetTimespan = 14 * 24 * 60 * 60; // 2주
+        consensus.nPowTargetSpacing = 10 * 60; // 10분
         consensus.fPowAllowMinDifficultyBlocks = false;
         consensus.fPowNoRetargeting = false;
-        consensus.nRuleChangeActivationThreshold = 1815; // 90% of 2016
-        consensus.nMinerConfirmationWindow = 2016; // nPowTargetTimespan / nPowTargetSpacing
-        consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].bit = 28;
-        consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nStartTime = Consensus::BIP9Deployment::NEVER_ACTIVE;
-        consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;
-        consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].min_activation_height = 0; // No activation delay
-
-        // Deployment of Taproot (BIPs 340-342)
+        consensus.nRuleChangeActivationThreshold = 1815;
+        consensus.nMinerConfirmationWindow = 2016;
+        
+        // Taproot 활성화
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].bit = 2;
-        consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].nStartTime = 1619222400; // April 24th, 2021
-        consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].nTimeout = 1628640000; // August 11th, 2021
-        consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].min_activation_height = 709632; // Approximately November 12th, 2021
+        consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].nStartTime = Consensus::BIP9Deployment::ALWAYS_ACTIVE;
+        consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;
+        consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].min_activation_height = 0;
 
-        consensus.nMinimumChainWork = uint256S("0x00000000000000000000000000000000000000003404ba0801921119f903495e");
-        consensus.defaultAssumeValid = uint256S("0x00000000000000000009c97098b5295f7e5f183ac811fb5d1534040adb93cabd"); // 751565
+        // 최소 체인 워크와 가정 유효 블록을 초기화
+        consensus.nMinimumChainWork = uint256S("0x0000000000000000000000000000000000000000000000000000000000000001");
+        consensus.defaultAssumeValid = uint256{}; // 빈 값으로 설정
 
-        /**
-         * The message start string is designed to be unlikely to occur in normal data.
-         * The characters are rarely used upper ASCII, not valid as UTF-8, and produce
-         * a large 32-bit integer with any alignment.
-         */
-	const char* pszTimestamp = "The Times 21/Jul/2025 BitSteal Launches for the Brave";
-	const CScript genesisOutputScript = CScript() << ParseHex("04678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5f") << OP_CHECKSIG;
-	
-	pchMessageStart[0] = 0xe2;
-	pchMessageStart[1] = 0xc3;
-	pchMessageStart[2] = 0xa9;
-	pchMessageStart[3] = 0xfc;
-	nDefaultPort = 8333;
-	nPruneAfterHeight = 100000;
-	m_assumed_blockchain_size = 496;
-	m_assumed_chain_state_size = 6;
-	
-	
-	genesis = CreateGenesisBlock(
-	    "BitSteal Genesis - 자유를 위한 화폐",
-	    genesisOutputScript,
-	    1753150989,      // Time
-	    178391,          // Nonce
-	    0x1f00ffff,      // Bits (낮은 난이도)
-	    1,               // Version
-	    50 * COIN        // Reward
-	);
+        // 메시지 시작 바이트
+        pchMessageStart[0] = 0xe2;
+        pchMessageStart[1] = 0xc3;
+        pchMessageStart[2] = 0xa9;
+        pchMessageStart[3] = 0xfc;
+        nDefaultPort = 8333;
 
-	consensus.hashGenesisBlock = genesis.GetHash();
+        // DNS Seeds를 제거하거나 자체 시드 서버로 교체
+        vSeeds.clear(); // 모든 기존 시드 제거
+        // vSeeds.emplace_back("your-seed-server.com"); // 필요시 자체 시드 서버 추가
 
-	assert(consensus.hashGenesisBlock ==
-	    uint256S("0x00007d7ec8a58ec236b39852d8e744233a297dfde7c8b1e31a3d74d74dfe2ed9"));
+        // 제네시스 블록 생성
+        const char* pszTimestamp = "BitSteal Genesis - 자유를 위한 화폐";
+        const CScript genesisOutputScript = CScript() << ParseHex("04678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5f") << OP_CHECKSIG;
+        
+        genesis = CreateGenesisBlock(
+            pszTimestamp,
+            genesisOutputScript,
+            1753150989,      // Time
+            178391,          // Nonce
+            0x1f00ffff,      // Bits
+            1,               // Version
+            50 * COIN        // Reward
+        );
 
-	assert(genesis.hashMerkleRoot ==
-	    uint256S("0xc58250dd67353779e63f8071309ba61f3e0bcb875471630a481915b778430309"));
+        consensus.hashGenesisBlock = genesis.GetHash();
 
-        // Note that of those which support the service bits prefix, most only support a subset of
-        // possible options.
-        // This is fine at runtime as we'll fall back to using them as an addrfetch if they don't support the
-        // service bits we want, but we should get them updated to support all service bits wanted by any
-        // release ASAP to avoid it where possible.
-        vSeeds.emplace_back("seed.bitcoin.sipa.be."); // Pieter Wuille, only supports x1, x5, x9, and xd
-        vSeeds.emplace_back("dnsseed.bluematt.me."); // Matt Corallo, only supports x9
-        vSeeds.emplace_back("dnsseed.bitcoin.dashjr.org."); // Luke Dashjr
-        vSeeds.emplace_back("seed.bitcoinstats.com."); // Christian Decker, supports x1 - xf
-        vSeeds.emplace_back("seed.bitcoin.jonasschnelli.ch."); // Jonas Schnelli, only supports x1, x5, x9, and xd
-        vSeeds.emplace_back("seed.btc.petertodd.org."); // Peter Todd, only supports x1, x5, x9, and xd
-        vSeeds.emplace_back("seed.bitcoin.sprovoost.nl."); // Sjors Provoost
-        vSeeds.emplace_back("dnsseed.emzy.de."); // Stephan Oeste
-        vSeeds.emplace_back("seed.bitcoin.wiz.biz."); // Jason Maurice
+        // 제네시스 블록 해시 검증 (실제 해시값으로 교체 필요)
+        assert(consensus.hashGenesisBlock ==
+            uint256S("0x00007d7ec8a58ec236b39852d8e744233a297dfde7c8b1e31a3d74d74dfe2ed9"));
 
-        base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,0);
-        base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,5);
-        base58Prefixes[SECRET_KEY] =     std::vector<unsigned char>(1,128);
-        base58Prefixes[EXT_PUBLIC_KEY] = {0x04, 0x88, 0xB2, 0x1E};
-        base58Prefixes[EXT_SECRET_KEY] = {0x04, 0x88, 0xAD, 0xE4};
+        assert(genesis.hashMerkleRoot ==
+            uint256S("0xc58250dd67353779e63f8071309ba61f3e0bcb875471630a481915b778430309"));
 
-        bech32_hrp = "bc";
+        // Base58 주소 프리픽스 (Bitcoin과 다르게 설정)
+        base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,25);  // 'B'로 시작
+        base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,85);  // 'b'로 시작
+        base58Prefixes[SECRET_KEY] =     std::vector<unsigned char>(1,153); // 다른 값
+        base58Prefixes[EXT_PUBLIC_KEY] = {0x04, 0x88, 0xB2, 0x1F}; // 약간 다른 값
+        base58Prefixes[EXT_SECRET_KEY] = {0x04, 0x88, 0xAD, 0xE5}; // 약간 다른 값
 
-        vFixedSeeds = std::vector<uint8_t>(std::begin(chainparams_seed_main), std::end(chainparams_seed_main));
+        bech32_hrp = "bs"; // BitSteal용 bech32 prefix
+
+        vFixedSeeds = std::vector<uint8_t>(); // 빈 고정 시드
 
         fDefaultConsistencyChecks = false;
         fRequireStandard = true;
         m_is_test_chain = false;
         m_is_mockable_chain = false;
 
+        // 체크포인트 데이터를 비우거나 새로운 체인에 맞게 설정
         checkpointData = {
             {
-                { 11111, uint256S("0x0000000069e244f73d78e8fd29ba2fd2ed618bd6fa2ee92559f542fdb26e7c1d")},
-                { 33333, uint256S("0x000000002dd5588a74784eaa7ab0507a18ad16a236e7b1ce69f00d7ddfb5d0a6")},
-                { 74000, uint256S("0x0000000000573993a3c9e41ce34471c079dcf5f52a0e824a81e7f953b8661a20")},
-                {105000, uint256S("0x00000000000291ce28027faea320c8d2b054b2e0fe44a773f3eefb151d6bdc97")},
-                {134444, uint256S("0x00000000000005b12ffd4cd315cd34ffd4a594f430ac814c91184a0d42d2b0fe")},
-                {168000, uint256S("0x000000000000099e61ea72015e79632f216fe6cb33d7899acb35b75c8303b763")},
-                {193000, uint256S("0x000000000000059f452a5f7340de6682a977387c17010ff6e6c3bd83ca8b1317")},
-                {210000, uint256S("0x000000000000048b95347e83192f69cf0366076336c639f9b7228e9ba171342e")},
-                {216116, uint256S("0x00000000000001b4f4b433e81ee46494af945cf96014816a4e2370f11b23df4e")},
-                {225430, uint256S("0x00000000000001c108384350f74090433e7fcf79a606b8e797f065b130575932")},
-                {250000, uint256S("0x000000000000003887df1f29024b06fc2200b55f8af8f35453d7be294df2d214")},
-                {279000, uint256S("0x0000000000000001ae8c72a0b0c301f67e3afca10e819efa9041e458e9bd7e40")},
-                {295000, uint256S("0x00000000000000004d9b4ef50f0f9d686fd69db2e03af35a100370c64632a983")},
+                // 제네시스 블록만 체크포인트로 설정
+                {0, uint256S("0x00007d7ec8a58ec236b39852d8e744233a297dfde7c8b1e31a3d74d74dfe2ed9")},
             }
         };
 
-        m_assumeutxo_data = MapAssumeutxo{
-         // TODO to be specified in a future patch.
-        };
+        m_assumeutxo_data = MapAssumeutxo{}; // 빈 값
 
+        // 체인 트랜잭션 데이터 초기화
         chainTxData = ChainTxData{
-            // Data from RPC: getchaintxstats 4096 00000000000000000009c97098b5295f7e5f183ac811fb5d1534040adb93cabd
-            .nTime    = 1661697692,
-            .nTxCount = 760120522,
-            .dTxRate  = 2.925802860942233,
+            1753150989, // 제네시스 블록 시간
+            1,          // 트랜잭션 수 (제네시스만)
+            0.0         // 트랜잭션 비율
         };
     }
 };
-
 /**
  * Testnet (v3): public test network which is reset from time to time.
  */
@@ -212,8 +183,8 @@ public:
         consensus.CSVHeight = 770112; // 00000000025e930139bac5c6c31a403776da130831ab85be56578f3fa75369bb
         consensus.SegwitHeight = 834624; // 00000000002b980fcd729daaa248fd9316a5200e9b367f4ff2c42453e84201ca
         consensus.MinBIP9WarningHeight = 836640; // segwit activation height + miner confirmation window
-        consensus.powLimit = uint256S("0000ffff00000000000000000000000000000000000000000000000000000000");
-	consensus.nPowTargetTimespan = 14 * 24 * 60 * 60; // two weeks
+        consensus.powLimit = uint256S("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+        consensus.nPowTargetTimespan = 14 * 24 * 60 * 60; // two weeks
         consensus.nPowTargetSpacing = 10 * 60;
         consensus.fPowAllowMinDifficultyBlocks = true;
         consensus.fPowNoRetargeting = false;
@@ -356,8 +327,8 @@ public:
         consensus.nRuleChangeActivationThreshold = 1815; // 90% of 2016
         consensus.nMinerConfirmationWindow = 2016; // nPowTargetTimespan / nPowTargetSpacing
         consensus.MinBIP9WarningHeight = 0;
-        consensus.powLimit = uint256S("0000ffff00000000000000000000000000000000000000000000000000000000");
-	consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].bit = 28;
+        consensus.powLimit = uint256S("00000377ae000000000000000000000000000000000000000000000000000000");
+        consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].bit = 28;
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nStartTime = Consensus::BIP9Deployment::NEVER_ACTIVE;
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].min_activation_height = 0; // No activation delay
@@ -417,8 +388,8 @@ public:
         consensus.CSVHeight = 1;    // Always active unless overridden
         consensus.SegwitHeight = 0; // Always active unless overridden
         consensus.MinBIP9WarningHeight = 0;
-        consensus.powLimit = uint256S("0000ffff00000000000000000000000000000000000000000000000000000000");
-	consensus.nPowTargetTimespan = 14 * 24 * 60 * 60; // two weeks
+        consensus.powLimit = uint256S("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+        consensus.nPowTargetTimespan = 14 * 24 * 60 * 60; // two weeks
         consensus.nPowTargetSpacing = 10 * 60;
         consensus.fPowAllowMinDifficultyBlocks = true;
         consensus.fPowNoRetargeting = true;
@@ -599,5 +570,4 @@ void SelectParams(const std::string& network)
     SelectBaseParams(network);
     globalChainParams = CreateChainParams(gArgs, network);
 }
-
 
