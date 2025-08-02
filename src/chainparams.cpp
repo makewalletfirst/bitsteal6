@@ -49,18 +49,20 @@ static CBlock CreateGenesisBlock(const char* pszTimestamp, const CScript& genesi
  */
 static CBlock CreateGenesisBlock(uint32_t nTime, uint32_t nNonce, uint32_t nBits, int32_t nVersion, const CAmount& genesisReward)
 {
-    const char* pszTimestamp = "BitSteal Genesis - 자유를 위한 화폐";
+    const char* pszTimestamp = "The Times 03/Jan/2009 Chancellor on brink of second bailout for banks";
     const CScript genesisOutputScript = CScript() << ParseHex("04678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5f") << OP_CHECKSIG;
     return CreateGenesisBlock(pszTimestamp, genesisOutputScript, nTime, nNonce, nBits, nVersion, genesisReward);
 }
 
 /**
- * BitSteal main network
+ * Main network on which people trade goods and services.
  */
+// CMainParams 클래스의 수정해야 할 부분들
+
 class CMainParams : public CChainParams {
 public:
     CMainParams() {
-        strNetworkID = "bitsteal";  // 네트워크 식별자 변경
+        strNetworkID = CBaseChainParams::MAIN;
         consensus.signet_blocks = false;
         consensus.signet_challenge.clear();
         consensus.nSubsidyHalvingInterval = 210000;
@@ -94,35 +96,48 @@ public:
         consensus.nMinimumChainWork = uint256S("0x0000000000000000000000000000000000000000000000000000000000000001");
         consensus.defaultAssumeValid = uint256{}; // 빈 값으로 설정
 
-        // 메시지 시작 바이트 (기존 값 유지)
+        // 메시지 시작 바이트
         pchMessageStart[0] = 0xe2;
         pchMessageStart[1] = 0xc3;
         pchMessageStart[2] = 0xa9;
         pchMessageStart[3] = 0xfc;
-        nDefaultPort = 8333;  // 포트 8333 유지
+        nDefaultPort = 8333;
 
         // DNS Seeds를 제거하거나 자체 시드 서버로 교체
         vSeeds.clear(); // 모든 기존 시드 제거
+        // vSeeds.emplace_back("your-seed-server.com"); // 필요시 자체 시드 서버 추가
 
-        // 제네시스 블록 생성 (기존 값들 그대로 사용)
-        genesis = CreateGenesisBlock(1753150989, 178391, 0x1f00ffff, 1, 50 * COIN);
+        // 제네시스 블록 생성
+        const char* pszTimestamp = "BitSteal Genesis - 자유를 위한 화폐";
+        const CScript genesisOutputScript = CScript() << ParseHex("04678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5f") << OP_CHECKSIG;
+        
+        genesis = CreateGenesisBlock(
+            pszTimestamp,
+            genesisOutputScript,
+            1753150989,      // Time
+            178391,          // Nonce
+            0x1f00ffff,      // Bits
+            1,               // Version
+            50 * COIN        // Reward
+        );
+
         consensus.hashGenesisBlock = genesis.GetHash();
 
-        // 제네시스 블록 해시 검증 (기존 값 사용)
+        // 제네시스 블록 해시 검증 (실제 해시값으로 교체 필요)
         assert(consensus.hashGenesisBlock ==
             uint256S("0x00007d7ec8a58ec236b39852d8e744233a297dfde7c8b1e31a3d74d74dfe2ed9"));
 
         assert(genesis.hashMerkleRoot ==
             uint256S("0xc58250dd67353779e63f8071309ba61f3e0bcb875471630a481915b778430309"));
 
-        // Base58 주소 프리픽스 (Bitcoin과 다르게 설정)
-        base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,25);  // 'B'로 시작
-        base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,85);  // 'b'로 시작
-        base58Prefixes[SECRET_KEY] =     std::vector<unsigned char>(1,153); // 다른 값
-        base58Prefixes[EXT_PUBLIC_KEY] = {0x04, 0x88, 0xB2, 0x1F}; // 약간 다른 값
-        base58Prefixes[EXT_SECRET_KEY] = {0x04, 0x88, 0xAD, 0xE5}; // 약간 다른 값
+        // Base58 주소 프리픽스
+        base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,0);
+        base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,5);
+        base58Prefixes[SECRET_KEY] =     std::vector<unsigned char>(1,128);
+        base58Prefixes[EXT_PUBLIC_KEY] = {0x04, 0x88, 0xB2, 0x1E};
+        base58Prefixes[EXT_SECRET_KEY] = {0x04, 0x88, 0xAD, 0xE4};
 
-        bech32_hrp = "bs"; // BitSteal용 bech32 prefix
+        bech32_hrp = "bc"; // 비트코인과 동일한 bc1 주소 프리픽스
 
         vFixedSeeds = std::vector<uint8_t>(); // 빈 고정 시드
 
@@ -149,14 +164,13 @@ public:
         };
     }
 };
-
 /**
  * Testnet (v3): public test network which is reset from time to time.
  */
 class CTestNetParams : public CChainParams {
 public:
     CTestNetParams() {
-        strNetworkID = "bitsteal-testnet";  // 테스트넷도 BitSteal로 변경
+        strNetworkID = CBaseChainParams::TESTNET;
         consensus.signet_blocks = false;
         consensus.signet_challenge.clear();
         consensus.nSubsidyHalvingInterval = 210000;
@@ -296,7 +310,7 @@ public:
             vSeeds = args.GetArgs("-signetseednode");
         }
 
-        strNetworkID = "bitsteal-signet";  // 시그넷도 BitSteal로 변경
+        strNetworkID = CBaseChainParams::SIGNET;
         consensus.signet_blocks = true;
         consensus.signet_challenge.assign(bin.begin(), bin.end());
         consensus.nSubsidyHalvingInterval = 210000;
@@ -363,7 +377,7 @@ public:
 class CRegTestParams : public CChainParams {
 public:
     explicit CRegTestParams(const ArgsManager& args) {
-        strNetworkID = "bitsteal-regtest";  // 레그테스트도 BitSteal로 변경
+        strNetworkID =  CBaseChainParams::REGTEST;
         consensus.signet_blocks = false;
         consensus.signet_challenge.clear();
         consensus.nSubsidyHalvingInterval = 150;
@@ -556,3 +570,4 @@ void SelectParams(const std::string& network)
     SelectBaseParams(network);
     globalChainParams = CreateChainParams(gArgs, network);
 }
+
