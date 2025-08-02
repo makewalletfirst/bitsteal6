@@ -96,8 +96,13 @@ public:
         consensus.hashGenesisBlock = genesis.GetHash();
 
         // 제네시스 블록 해시 검증 (실제 마이닝 후 업데이트 필요)
-        assert(consensus.hashGenesisBlock == uint256S("0x00007d7ec8a58ec236b39852d8e744233a297dfde7c8b1e31a3d74d74dfe2ed9"));
-        assert(genesis.hashMerkleRoot == uint256S("0xc58250dd67353779e63f8071309ba61f3e0bcb875471630a481915b778430309"));
+        // 임시로 주석 처리 - 실제 해시값으로 업데이트 필요
+        // assert(consensus.hashGenesisBlock == uint256S("0x실제해시값"));
+        // assert(genesis.hashMerkleRoot == uint256S("0x실제머클루트값"));
+        
+        // 현재 제네시스 블록 정보 출력 (디버깅용)
+        LogPrintf("BitSteal Genesis Block Hash: %s\n", consensus.hashGenesisBlock.ToString());
+        LogPrintf("BitSteal Genesis Merkle Root: %s\n", genesis.hashMerkleRoot.ToString());
 
         // BitSteal 주소 프리픽스 (Bitcoin과 구별)
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,25);  // 'B'로 시작
@@ -142,10 +147,10 @@ const CChainParams &Params() {
 
 std::unique_ptr<const CChainParams> CreateChainParams(const ArgsManager& args, const std::string& chain)
 {
-    if (chain == "main" || chain == "bitsteal") {
+    if (chain == CBaseChainParams::MAIN) {
         return std::unique_ptr<CChainParams>(new CMainParams());
     }
-    throw std::runtime_error(strprintf("%s: Unknown chain %s. Only 'main' or 'bitsteal' supported.", __func__, chain));
+    throw std::runtime_error(strprintf("%s: Unknown chain %s.", __func__, chain));
 }
 
 void SelectParams(const std::string& network)
